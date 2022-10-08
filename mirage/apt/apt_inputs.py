@@ -269,7 +269,11 @@ class AptInput:
         combined.update(dict2)
         return combined
 
-    def create_input_table(self, skip_observations=None, verbose=False):
+    #<DZLIU># <<< adding miri_parallel_imaging
+    #<DZLIU># def create_input_table(self, skip_observations=None, verbose=False):
+    #<DZLIU># === adding miri_parallel_imaging
+    def create_input_table(self, skip_observations=None, verbose=False, miri_parallel_imaging=False):
+    #<DZLIU># >>> adding miri_parallel_imaging
         """
         Main function for creating a table of parameters for each
         exposure
@@ -298,8 +302,14 @@ class AptInput:
             raise RuntimeError('self.apt_xml_dict is not defined')
 
         # Read in the pointing file and produce dictionary
+        #<DZLIU># <<< adding miri_parallel_imaging
+        #<DZLIU># pointing_dictionary = self.get_pointing_info(self.pointing_file, propid=self.apt_xml_dict['ProposalID'][0],
+        #<DZLIU>#                                              skipped_obs_from_xml=self.skip_observations)
+        #<DZLIU># === adding miri_parallel_imaging
         pointing_dictionary = self.get_pointing_info(self.pointing_file, propid=self.apt_xml_dict['ProposalID'][0],
-                                                     skipped_obs_from_xml=self.skip_observations)
+                                                     skipped_obs_from_xml=self.skip_observations,
+                                                     miri_parallel_imaging=miri_parallel_imaging)
+        #<DZLIU># >>> adding miri_parallel_imaging
 
         # Check that the .xml and .pointing files agree
         assert len(self.apt_xml_dict['ProposalID']) == len(pointing_dictionary['obs_num']),\
@@ -737,7 +747,11 @@ class AptInput:
         else:
             return os.path.abspath(os.path.expandvars(in_path))
 
-    def get_pointing_info(self, file, propid=0, skipped_obs_from_xml=None, verbose=False):
+    #<DZLIU># <<< adding miri_parallel_imaging
+    #<DZLIU># def get_pointing_info(self, file, propid=0, skipped_obs_from_xml=None, verbose=False):
+    #<DZLIU># === adding miri_parallel_imaging
+    def get_pointing_info(self, file, propid=0, skipped_obs_from_xml=None, verbose=False, miri_parallel_imaging=False):
+    #<DZLIU># >>> adding miri_parallel_imaging
         """Read in information from APT's pointing file.
 
         Parameters
@@ -874,7 +888,11 @@ class AptInput:
                                                          or 'MIR' in elements[4])
                             ) or (('TA' in elements[4]) & ('NRC' in elements[4]
                                                            or 'NIS' in elements[4])):
-                            if (elements[18] == 'PARALLEL') and ('MIRI' in elements[4]):
+                            #<DZLIU># <<< adding miri_parallel_imaging
+                            #<DZLIU># if (elements[18] == 'PARALLEL') and ('MIRI' in elements[4]):
+                            #<DZLIU># === adding miri_parallel_imaging
+                            if (elements[18] == 'PARALLEL') and ('MIRI' in elements[4]) and (not miri_parallel_imaging):
+                            #<DZLIU># >>> adding miri_parallel_imaging
                                 skip = True
 
                             if skip:

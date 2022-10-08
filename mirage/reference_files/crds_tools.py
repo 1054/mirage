@@ -181,7 +181,17 @@ def get_reffiles(parameter_dict, reffile_types, download=True):
         # Check for missing files
         for key, value in reffile_mapping.items():
             if "NOT FOUND" in value:
-                raise ValueError("ERROR: No {} reference file found when using parameter dictionary: {}".format(key, parameter_dict))
+                #<DZLIU># <<< adding MIRI, no IPC
+                #<DZLIU># raise ValueError("ERROR: No {} reference file found when using parameter dictionary: {}".format(key, parameter_dict))
+                #<DZLIU># === adding MIRI, no IPC
+                exception_cases = False
+                if key in ['ipc', 'superbias'] and parameter_dict['DETECTOR'] == 'MIRIMAGE':
+                    # MIRI imaging does not have these reffiles, see https://jwst-crds.stsci.edu/
+                    exception_cases = True
+                    reffile_mapping[key] = 'none'
+                if not exception_cases:
+                    raise ValueError("ERROR: No {} reference file found when using parameter dictionary: {}".format(key, parameter_dict))
+                #<DZLIU># >>> adding MIRI, no IPC
     else:
         # If the files will not be downloaded, still return the same local
         # paths that are returned when the files are downloaded. Note that
@@ -195,9 +205,23 @@ def get_reffiles(parameter_dict, reffile_types, download=True):
 
             # Check for NOT FOUND must be done here because the following
             # line will raise an exception if NOT FOUND is present
+            #<DZLIU># <<< adding MIRI, no IPC
+            #<DZLIU># if "NOT FOUND" in value:
+            #<DZLIU>#     raise ValueError("ERROR: No {} reference file found when using parameter dictionary: {}".format(key, parameter_dict))
+            #<DZLIU># instrument = value.split('_')[1]
+            #<DZLIU># reffile_mapping[key] = os.path.join(crds_path, 'references/jwst', instrument, value)
+            #<DZLIU># === adding MIRI, no IPC
             if "NOT FOUND" in value:
-                raise ValueError("ERROR: No {} reference file found when using parameter dictionary: {}".format(key, parameter_dict))
-            instrument = value.split('_')[1]
-            reffile_mapping[key] = os.path.join(crds_path, 'references/jwst', instrument, value)
+                exception_cases = False
+                if key in ['ipc', 'superbias'] and parameter_dict['DETECTOR'] == 'MIRIMAGE':
+                    # MIRI imaging does not have these reffiles, see https://jwst-crds.stsci.edu/
+                    exception_cases = True
+                    reffile_mapping[key] = 'none'
+                if not exception_cases:
+                    raise ValueError("ERROR: No {} reference file found when using parameter dictionary: {}".format(key, parameter_dict))
+            else:
+                instrument = value.split('_')[1]
+                reffile_mapping[key] = os.path.join(crds_path, 'references/jwst', instrument, value)
+            #<DZLIU># >>> adding MIRI, no IPC
 
     return reffile_mapping

@@ -82,7 +82,7 @@ def save(seed_image, param_file, parameters, photflam, photfnu, pivot_wavelength
     kw['GAINFILE'] = parameters['Reffiles']['gain']
     kw['DISTORTN'] = parameters['Reffiles']['astrometric']
     kw['IPC'] = parameters['Reffiles']['ipc']
-    kw['PIXARMAP'] = parameters['Reffiles']['pixelAreaMap']
+    #<DZLIU># kw['PIXARMAP'] = parameters['Reffiles']['pixelAreaMap'] #<DZLIU># pixelAreaMap is not used
     kw['CROSSTLK'] = parameters['Reffiles']['crosstalk']
     kw['FLUX_CAL'] = parameters['Reffiles']['flux_cal']
     kw['FTHRUPUT'] = parameters['Reffiles']['filter_throughput']

@@ -200,9 +200,10 @@ class ReadAPTXML():
                 self.target_type[t_name] = 'non-sidereal'
             else:
                 self.target_type[t_name] = 'sidereal'
-        self.logger.info('target_info:')
-        for item in self.target_info.items():
-            self.logger.info('    {}'.format(item))
+        if verbose: #<DZLIU># adding if verbose and indenting 3 following lines
+            self.logger.info('target_info:')
+            for item in self.target_info.items():
+                self.logger.info('    {}'.format(item))
 
         # Get parameters for each observation  - - - - - - - - - - - - - - - -
 
@@ -319,7 +320,17 @@ class ReadAPTXML():
                 if coordparallel == 'true':
                     parallel_template_name = etree.QName(obs.find(self.apt + 'FirstCoordinatedTemplate')[0]).localname
                     if parallel_template_name in ['MiriImaging']:
-                        pass
+                        #<<< #<DZLIU># adding method for parallel MiriImaging
+                        #pass
+                        #=== #<DZLIU># adding method for parallel MiriImaging
+                        parallel_exposures_dictionary = self.read_miri_parallel_imaging(
+                            obs,
+                            exposures_dictionary,
+                            proposal_parameter_dictionary,
+                            verbose=verbose
+                        )
+                        exposures_dictionary = append_dictionary(exposures_dictionary, parallel_exposures_dictionary, braid=True)
+                        #>>> #<DZLIU># adding method for parallel MiriImaging
                     else:
                         parallel_exposures_dictionary = self.read_parallel_exposures(obs, exposures_dictionary,
                                                                                      proposal_parameter_dictionary,
@@ -1774,6 +1785,92 @@ class ReadAPTXML():
         return exposures_dictionary
 
 
+    # DZLIU: Adding new method: read_miri_parallel_imaging
+    def read_miri_parallel_imaging(
+            self,
+            obs,
+            exposures_dictionary,
+            proposal_parameter_dictionary,
+            verbose = False,
+            return_template = False,
+        ):
+        """DZLIU: Adding this method.
+
+        The primary observation should be NIRCam imaging (xml prefix 'nci:').
+        """
+        observation_number = obs.find(self.apt + 'Number').text.zfill(3)
+        template = obs.find(self.apt + 'Template')[0]
+        template_name = etree.QName(template).localname
+        targ_name = proposal_parameter_dictionary['TargetID']
+
+        miri_template = obs.find(self.apt + 'FirstCoordinatedTemplate')[0]
+        miri_template_name = etree.QName(miri_template).localname
+
+        primary_dither = template.find('nci:PrimaryDithers', template.nsmap).text
+        try:
+            primary_dither = int(primary_dither)
+        except:
+            primary_dither = int(primary_dither[0]) # 4TIGHT, take the first '4'
+
+        node = etree.SubElement(
+            miri_template,
+            '{' + miri_template.nsmap['mi'] + '}' + 'NumberOfPoints',
+        )
+        node.text = str(primary_dither)
+
+        # Add MIRI Dithers:DitherSpecification:*
+        miri_dithers_node = etree.SubElement(
+            miri_template,
+            '{' + miri_template.nsmap['mi'] + '}' + 'Dithers',
+        )
+        miri_dither_specification_node = etree.SubElement(
+            miri_dithers_node,
+            '{' + miri_template.nsmap['mi'] + '}' + 'DitherSpecification',
+        )
+        if primary_dither == 4:
+            parallel_dither = '4-Point-Sets'
+        else:
+            raise NotImplementedError()
+        for node_name, node_text in zip(
+            ['DitherType', 'StartingSet', 'NumberOfSets', 'Direction', 'OptimizeFor', 'PatternSize'],
+            [parallel_dither, '1', '1', 'POSITIVE', 'POINT SOURCE', 'DEFAULT']
+            # Note: This is specialized for COSMOS FULLBOX 4TIGHT primary dithering
+            # DZLIU TODO: Does this work?
+            ):
+            #
+            node = etree.SubElement(
+                miri_dither_specification_node,
+                '{' + miri_template.nsmap['mi'] + '}' + node_name,
+            )
+            node.text = node_text
+
+        # Add MIRI Filters:FilterConfig:Dither
+        miri_filter_node = miri_template.find('mi:' + 'Filters', miri_template.nsmap)
+        miri_filter_config_nodes = miri_filter_node.findall('mi:' + 'FilterConfig', miri_template.nsmap)
+        for miri_filter_config_node in miri_filter_config_nodes:
+            node = etree.SubElement(
+                miri_filter_config_node,
+                '{' + miri_template.nsmap['mi'] + '}' + 'Dither',
+            )
+            node.text = 'Dither 1'
+
+        miri_exposures_dictionary = {}
+        miri_exposures_dictionary = self.read_miri_prime_imaging(
+            miri_template,
+            miri_template_name,
+            obs,
+            proposal_parameter_dictionary,
+        )
+
+        for k in range(len(miri_exposures_dictionary['ParallelInstrument'])):
+            miri_exposures_dictionary['ParallelInstrument'][k] = True
+
+        if return_template:
+            return miri_template, miri_exposures_dictionary
+
+        return miri_exposures_dictionary
+
+
     def read_nircam_grism_time_series(self, template, template_name, obs, proposal_parameter_dictionary):
         """Parse a NIRCam Grism Time Series observation template from an APT xml file.
         Produce an exposure dictionary that lists all exposures (excluding dithers)
@@ -3132,6 +3229,24 @@ class ReadAPTXML():
                                                                            proposal_parameter_dictionary,
                                                                            prime_exposure_dict=prime_exposure_dict,
                                                                            parallel=True)
+        #<<< DZLIU 20220924
+        #=== DZLIU 20220924 adding following lines
+        elif template_name == 'MiriImaging' and prime_template == 'NircamImaging':
+            parallel_exposures_dictionary = self.read_miri_prime_imaging(template,
+                                                                         template_name, obs,
+                                                                         proposal_parameter_dictionary,
+                                                                         parallel=True,
+                                                                         prime_exposure_dict=prime_exposure_dict,
+                                                                         verbose=verbose)
+
+            # primary_template = obs.find(self.apt + 'FirstCoordinatedTemplate')[0] #DZLIU:TODO
+            # primary_exposures_dictionary = self.read_generic_imaging_template(template,
+            #                                                              template_name, obs,
+            #                                                              proposal_parameter_dictionary,
+            #                                                              parallel=True,
+            #                                                              prime_exposure_dict=prime_exposure_dict,
+            #                                                              verbose=verbose)
+        #>>> DZLIU 20220924
         else:
             raise ValueError('Parallel observation template {} not supported.'.format(template_name))
 

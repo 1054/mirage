@@ -119,5 +119,12 @@ def get_transmission_file(parameter_dict):
     elif parameter_dict['INSTRUME'].lower() == 'fgs':
         transmission_filename = None
 
+    #<DZLIU># <<< adding MIRI
+    #<DZLIU># === adding MIRI
+    # For MIRI we don't need to worry about a transmission file
+    elif parameter_dict['INSTRUME'].lower() == 'miri':
+        transmission_filename = None
+    #<DZLIU># >>> adding MIRI
+
     logger.info('POM Transmission filename: {}'.format(transmission_filename))
     return transmission_filename

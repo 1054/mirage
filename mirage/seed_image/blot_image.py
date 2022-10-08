@@ -15,10 +15,12 @@ import argparse
 import numpy as np
 import gwcs
 from astropy.io import fits
+from functools import partial
 from jwst import datamodels
 from jwst.outlier_detection import outlier_detection
 from jwst.assign_wcs import AssignWcsStep
 from jwst.datamodels import container
+from jwst.stpipe import Step
 import pysiaf
 
 from mirage.logging import logging_functions
@@ -205,6 +207,11 @@ class Blot():
 
         # Blot the image to each of the WCSs in the blot_list
         pars = {'sinscl': 1.0, 'interp': 'poly5'}
+        #<DZLIU># <<< fixing bug to run `seed.crop_and_blot()`
+        #<DZLIU># === fixing bug to run `seed.crop_and_blot()`
+        stepx = OutlierDetectionStep()
+        pars['make_output_path'] = stepx.make_output_path
+        #<DZLIU># >>> fixing bug to run `seed.crop_and_blot()`
         reffiles = {}
         blotter = outlier_detection.OutlierDetection(blot_list, reffiles=reffiles, **pars)
         blotter.input_models = blot_list

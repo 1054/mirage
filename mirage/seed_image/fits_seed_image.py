@@ -705,7 +705,11 @@ class ImgSeed:
         else:
             # If a PSF file is provided, check for any metadata. Metadata
             # from the mosaic takes precidence over metadata in the PSF file.
-            psf_metadata = tools.get_psf_metadata(psf_filename)
+            #<DZLIU># <<< fixing bug to run `seed.crop_and_blot()`
+            #<DZLIU># psf_metadata = tools.get_psf_metadata(psf_filename)
+            #<DZLIU># === fixing bug to run `seed.crop_and_blot()`
+            psf_metadata = tools.get_psf_metadata(self.psf_file)
+            #<DZLIU># >>> fixing bug to run `seed.crop_and_blot()`
 
             # If the mosaic has no pixel scale info but the PSF file does,
             # use the value from the PSF file.
@@ -717,7 +721,11 @@ class ImgSeed:
                                       "file metadata (in CD1_1 header keyword). This information is "
                                       "needed to be able to convolve the mosaic with the proper PSF "
                                       "kernel."))
-            self.mosaic_psf = fits.getdata(psf_filename)
+            #<DZLIU># <<< fixing bug to run `seed.crop_and_blot()`
+            #<DZLIU># self.mosaic_psf = fits.getdata(psf_filename)
+            #<DZLIU># === fixing bug to run `seed.crop_and_blot()`
+            self.mosaic_psf = fits.getdata(self.psf_file)
+            #<DZLIU># >>> fixing bug to run `seed.crop_and_blot()`
 
     def psf_convolution(self, model):
         """Convolve the cropped image with the appropriate PSF for the

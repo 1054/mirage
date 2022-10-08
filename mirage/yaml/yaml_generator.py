@@ -642,7 +642,11 @@ class SimInput:
             return match[0]
 
     @logging_functions.log_fail
-    def create_inputs(self):
+    #<DZLIU># <<< adding miri_parallel_imaging
+    #<DZLIU># def create_inputs(self):
+    #<DZLIU># === adding miri_parallel_imaging
+    def create_inputs(self, miri_parallel_imaging=False):
+    #<DZLIU># >>> adding miri_parallel_imaging
         """Create observation table """
         self.path_defs()
 
@@ -665,7 +669,12 @@ class SimInput:
             apt.apt_xml_dict = self.apt_xml_dict
 
             apt.output_dir = self.output_dir
-            apt.create_input_table(skip_observations=self.xml_skipped_observations)
+            #<DZLIU># <<< adding miri_parallel_imaging
+            #<DZLIU># apt.create_input_table(skip_observations=self.xml_skipped_observations)
+            #<DZLIU># === adding miri_parallel_imaging
+            apt.create_input_table(skip_observations=self.xml_skipped_observations,
+                                   miri_parallel_imaging=miri_parallel_imaging)
+            #<DZLIU># >>> adding miri_parallel_imaging
             self.info = apt.exposure_tab
 
             # If we have a non-sidereal observation, then we need to
@@ -1140,6 +1149,12 @@ class SimInput:
             elif instrument == 'FGS':
                 filtername = 'N/A'
                 pupilname = 'N/A'
+            #<DZLIU># <<< adding MIRI
+            #<DZLIU># === adding MIRI
+            elif instrument == 'MIRI':
+                filtername = self.info['Filter'][i]
+                pupilname = 'N/A'
+            #<DZLIU># >>> adding MIRI
             readpattern = self.info['ReadoutPattern'][i]
 
             if instrument == 'NIRCAM':
@@ -1148,6 +1163,12 @@ class SimInput:
                 exptype = 'NIS_IMAGE'
             elif instrument == 'FGS':
                 exptype = 'FGS_IMAGE'
+            #<DZLIU># <<< adding MIRI
+            #<DZLIU># === adding MIRI
+            elif instrument == 'MIRI':
+                exptype = 'MIR_IMAGE'
+                detector = 'MIRIMAGE'
+            #<DZLIU># >>> adding MIRI
 
             entry = (instrument, detector, filtername, pupilname, readpattern, exptype)
             all_combinations.append(entry)
