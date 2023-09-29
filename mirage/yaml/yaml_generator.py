@@ -817,7 +817,11 @@ class SimInput:
         # for i in range(len(detector_labels)):
         for i, instrument in enumerate(self.info['Instrument']):
             instrument = instrument.lower()
-            if instrument not in 'fgs nircam niriss'.split():
+            #<DZLIU># <<< adding MIRI
+            #<DZLIU># if instrument not in 'fgs nircam niriss'.split():
+            #<DZLIU># === adding MIRI
+            if instrument not in 'fgs nircam miri niriss'.split():
+            #<DZLIU># >>> adding MIRI
                 # do not write files for MIRI and NIRSpec
                 continue
             elif instrument=='nircam':
@@ -1152,7 +1156,7 @@ class SimInput:
             #<DZLIU># <<< adding MIRI
             #<DZLIU># === adding MIRI
             elif instrument == 'MIRI':
-                filtername = self.info['Filter'][i]
+                filtername = self.info['FilterWheel'][i]
                 pupilname = 'N/A'
             #<DZLIU># >>> adding MIRI
             readpattern = self.info['ReadoutPattern'][i]
@@ -1653,6 +1657,16 @@ class SimInput:
                         self.lindark_list[instrument][det] = glob(os.path.join(self.datadir, 'niriss/darks/linearized',
                                                                                '*linear_dark_prep_object.fits'))
 
+            #<DZLIU># <<< adding MIRI
+            #<DZLIU># === adding MIRI
+            if instrument in ['nirspec', 'miri']:
+                for key in 'subarray_def_file fluxcal filtpupil_pairs readpatt_def_file crosstalk ' \
+                           'dq_init_config saturation_config superbias_config refpix_config ' \
+                           'linearity_config filter_throughput'.split():
+                    self.configfiles[instrument][key] = 'N/A'
+            #<DZLIU># >>> adding MIRI
+
+
     def set_config(self, file, prop):
         """
         If a given file is listed as 'config'
@@ -1943,6 +1957,13 @@ class SimInput:
             filtkey = 'FilterWheel'
             pupilkey = 'PupilWheel'
             catkey = ''
+        #<DZLIU># <<< adding MIRI
+        #<DZLIU># === adding MIRI
+        elif input['detector'] in ['MIR']:
+            filtkey = 'Filter'
+            pupilkey = 'PupilWheel'
+            catkey = ''
+        #<DZLIU># >>> adding MIRI
         elif input['detector'] in ['NRS', 'MIR']:
             filtkey = 'FilterWheel'
             pupilkey = 'PupilWheel'
@@ -1983,6 +2004,13 @@ class SimInput:
                     full_ap = 'NRC' + input['detector'] + '_' + input['aperture'][apunder + 1:]
             if instrument.lower() in ['niriss', 'fgs']:
                 full_ap = input['aperture']
+
+            #<DZLIU># <<< adding MIRI
+            #<DZLIU># === adding MIRI
+            print("input['aperture']", input['aperture'])
+            if instrument.lower() == 'miri':
+                full_ap = input['aperture']
+            #<DZLIU># >>> adding MIRI
 
             possible_apertures = pysiaf.Siaf(instrument).apernames
             if full_ap not in possible_apertures:
@@ -2070,7 +2098,11 @@ class SimInput:
                 ImagingTSOCatalog = input['{}_img_tso'.format(catkey)]
                 GrismTSOCatalog = input['{}_grism_tso'.format(catkey)]
                 BackgroundRate = input['{}_bkgd'.format(catkey)]
-            elif instrument.lower() in ['niriss', 'fgs']:
+            #<DZLIU># <<< adding MIRI
+            #<DZLIU># elif instrument.lower() in ['niriss', 'fgs']:
+            #<DZLIU># === adding MIRI
+            elif instrument.lower() in ['niriss', 'miri', 'fgs']:
+            #<DZLIU># >>> adding MIRI
                 PointSourceCatalog = input['PointSourceCatalog']
                 GalaxyCatalog = input['GalaxyCatalog']
                 ExtendedCatalog = input['ExtendedCatalog']
