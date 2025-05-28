@@ -1133,7 +1133,7 @@ def combine_and_interpolate(gaia_cat, gaia_2mass, gaia_2mass_crossref, gaia_wise
     twomassflag = [True] * n2mass2
     for n1 in range(n2mass2):
         for loop in range(len(gaia_2mass['ra'])):
-            if gaia_2mass['DESIGNATION'][loop] == twomass_cat['designation'][n1]:
+            if gaia_2mass['designation'][loop] == twomass_cat['designation'][n1]:
                 if ngaia2masscr[n1] >= 0:
                     twomassflag[n1] = False
     matchwise, gaiawiseinds, twomasswiseinds = wise_crossmatch(gaia_cat, gaia_wise, gaia_wise_crossref, wise_cat, twomass_cat)
@@ -1301,7 +1301,7 @@ def twomass_crossmatch(gaia_cat, gaia_2mass, gaia_2mass_crossref, twomass_cat):
         namematch = []
         match1 = []
         for l1 in range(ntable3):
-            if gaia_2mass['DESIGNATION'][loop] == gaia_2mass_crossref['DESIGNATION'][l1]:
+            if gaia_2mass['designation'][loop] == gaia_2mass_crossref['designation'][l1]:
                 nmatch = nmatch + 1
                 namematch.append(gaia_2mass_crossref['designation'][l1])
                 match1.append(loop)
@@ -1357,7 +1357,7 @@ def twomass_crossmatch(gaia_cat, gaia_2mass, gaia_2mass_crossref, twomass_cat):
     # index values.
     for loop in range(ntable4):
         for n1 in range(ntable2):
-            if twomass_cat['designation'][loop] == gaia_2mass['DESIGNATION'][n1]:
+            if twomass_cat['designation'][loop] == gaia_2mass['designation'][n1]:
                 ngaia2masscr[loop] = ngaia2mass[n1]
     return ngaia2masscr, ngaia2mass
 
@@ -1432,7 +1432,7 @@ def wise_crossmatch(gaia_cat, gaia_wise, gaia_wise_crossref, wise_cat, twomass_c
         if (d2d[loop].arcsec) < 0.4:
             matchwise[idx[loop]] = True
             for n2 in range(num_gaia):
-                if gaia_cat['DESIGNATION'][n2] == gaia_wise_crossref['DESIGNATION'][loop]:
+                if gaia_cat['DESIGNATION'][n2] == gaia_wise_crossref['designation'][loop]:
                     gaiawiseinds[idx[loop]] = n2
                     break
     return matchwise, gaiawiseinds, twomasswiseinds

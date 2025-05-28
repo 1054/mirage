@@ -127,8 +127,8 @@ from astropy.io import fits, ascii
 import datetime
 from math import radians
 import numpy as np
-from photutils import detect_sources
-from photutils import TopHatWindow, TukeyWindow, CosineBellWindow, SplitCosineBellWindow, HanningWindow
+from photutils.segmentation  import detect_sources
+from photutils.psf import TopHatWindow, TukeyWindow, CosineBellWindow, SplitCosineBellWindow, HanningWindow
 from photutils.centroids import centroid_2dg
 from photutils.psf import resize_psf
 from photutils.psf.matching import create_matching_kernel
@@ -538,12 +538,12 @@ class ImgSeed:
         # Normal imaging with grism image requested
         self.coords['x'] = self.grism_direct_factor
         self.coords['y'] = self.grism_direct_factor
-        self.coords['xoffset'] = np.int((self.grism_direct_factor - 1.)
-                                        * (self.subarr_bounds['xend'] -
-                                           self.subarr_bounds['xstart'] + 1) / 2.)
-        self.coords['yoffset'] = np.int((self.grism_direct_factor - 1.)
-                                        * (self.subarr_bounds['yend'] -
-                                           self.subarr_bounds['ystart']+1) / 2.)
+        self.coords['xoffset'] = int((self.grism_direct_factor - 1.)
+                                     * (self.subarr_bounds['xend'] -
+                                        self.subarr_bounds['xstart'] + 1) / 2.)
+        self.coords['yoffset'] = int((self.grism_direct_factor - 1.)
+                                     * (self.subarr_bounds['yend'] -
+                                        self.subarr_bounds['ystart']+1) / 2.)
 
     def make_segmap(self, model):
         """Create a segmentation map of the input image

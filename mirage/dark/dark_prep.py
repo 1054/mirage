@@ -494,7 +494,7 @@ class DarkPrep():
         None
         """
 
-        ncopies = np.int((req - darkint) / darkint)
+        ncopies = int((req - darkint) / darkint)
         extras = (req - darkint) % darkint
 
         # Full copies of the dark exposure (all integrations)
@@ -1123,7 +1123,7 @@ class DarkPrep():
             because averaging for non-RAPID readout patterns will destroy the frame
         """
         if self.params['Reffiles']['linearized_darkfile']:
-            datatype = np.float
+            datatype = np.float32
         else:
             datatype = np.int32
 
@@ -1174,7 +1174,7 @@ class DarkPrep():
             accumimage = np.zeros_like(outdark[0, 0, :, :], dtype=datatype)
 
             if dark.sbAndRefpix is not None:
-                zeroaccumimage = np.zeros_like(outdark[0, 0, :, :], dtype=np.float)
+                zeroaccumimage = np.zeros_like(outdark[0, 0, :, :], dtype=np.float32)
 
             # Loop over integrations
             #for integ in range(self.params['Readout']['nint']):

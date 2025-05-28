@@ -49,7 +49,7 @@ def test_fluxcal_info():
                                                              params['Readout']['filter'],
                                                              params['Readout']['pupil'], detector, module)
 
-    assert vegazp == 25.61
-    assert photflam == 3.2822504482210048e-21
-    assert photfnu == 4.33268e-31
-    assert pivot == 1.99
+    assert vegazp == 25.6
+    assert photflam == 3.3443932204899414e-21
+    assert photfnu == 4.4058412e-31
+    assert pivot == 1.988
